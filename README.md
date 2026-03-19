@@ -4,7 +4,7 @@ A browser-based control panel for **camera-streamer** on **OctoPi (64-bit)** wit
 
 > Built by [@D4n13l000](https://github.com/D4n13l000)
 
-![screenshot placeholder](docs/screenshot.png)
+![screenshot placeholder](screenshot.png)
 
 ---
 
