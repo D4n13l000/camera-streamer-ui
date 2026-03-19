@@ -53,6 +53,81 @@ Other cameras using camera-streamer + libcamera may work but zoom coordinates (S
 
 ---
 
+## Prerequisites — Get camera-streamer running first
+
+This tool is a **control panel** for camera-streamer. Camera-streamer must already be installed and streaming before you install this UI.
+
+On **OctoPi 1.0.0+ (64-bit)** with a **Camera Module 3**, camera-streamer is included but often does not work out of the box. Follow these steps via SSH before installing the UI.
+
+### Step 1 — Verify the camera is detected by the OS
+
+```bash
+libcamera-hello --list-cameras
+```
+
+You should see something like:
+```
+0 : imx708 [4608x2592 10-bit RGGB] ...
+```
+
+If nothing appears, check your ribbon cable connection and make sure the camera interface is enabled:
+```bash
+sudo raspi-config
+# Interface Options → Camera → Enable
+```
+
+### Step 2 — Install or update camera-streamer
+
+OctoPi 1.0.0+ includes camera-streamer, but the 64-bit build may need it reinstalled:
+
+```bash
+sudo apt update
+sudo apt install -y camera-streamer-raspi
+```
+
+### Step 3 — Configure for Camera Module 3
+
+Check if the config file exists:
+```bash
+ls /etc/camera-streamer.conf.d/
+```
+
+If `libcamera.conf` is missing, create it:
+```bash
+sudo mkdir -p /etc/camera-streamer.conf.d
+sudo tee /etc/camera-streamer.conf.d/libcamera.conf << 'EOF'
+PORT=8080
+WIDTH=1920
+HEIGHT=1080
+VIDEO_HEIGHT=1080
+SNAPSHOT_HEIGHT=2592
+FRAMERATE=15
+OPTIONS='--http-listen=0.0.0.0 --camera-options="AfMode=2" --camera-snapshot.options="quality=96" --camera-stream.options="quality=75"'
+EOF
+```
+
+### Step 4 — Enable and start the service
+
+```bash
+sudo systemctl enable camera-streamer-libcamera
+sudo systemctl start camera-streamer-libcamera
+sudo systemctl status camera-streamer-libcamera
+```
+
+You should see `active (running)`.
+
+### Step 5 — Verify the stream is accessible
+
+```bash
+curl -I http://localhost:8080/stream
+```
+
+Should return `HTTP/1.1 200 OK`. If it does, camera-streamer is working and you can proceed with installing the UI below.
+
+> **Stuck here?** See the [OctoPrint Community Forum guide](https://community.octoprint.org/t/camera-streamer-configuration-on-the-new-experimental-camera-stack-for-octopi/49950) for more detailed troubleshooting.
+
+---
+
 ## Quick install
 
 ```bash
